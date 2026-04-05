@@ -34,6 +34,7 @@ word-embeddings-la/
 │   └── usage/            # Cleaned and processed data
 ├── model/                # FastText embedding models
 ├── scripts/              # Python scripts for experiments
+│   ├── alignment.py
 │   ├── data_preprocessing.py
 │   └── main_process.ipynb
 └── requirements.txt      # Python dependencies
