@@ -111,8 +111,8 @@ def write_res_csv(data_dictionary: dict, path: str)-> None:
             for eng in eng_collection:
                 writer.writerow([ua, eng])
 
-def data_preprocessing(original_dictionary: str="../data/original/uk-en-full.txt",
-                       cleaned_dictionary: str="../data/usage/uk-en-full.csv") -> dict:
+def data_preprocessing(original_dictionary: str="../data/original/uk-en-train.txt",
+                       cleaned_dictionary: str="../data/usage/uk-en-train.csv") -> dict:
     """
     Function cleans the original English-Ukrainian dictionary
     and forms new dictionary with word pairs only.
