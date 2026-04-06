@@ -42,7 +42,7 @@ word-embeddings-la/
 ### Videos with explanation
 1. [Video from Oksana Moskviak](https://www.youtube.com/watch?v=wnyQZj9yCpY&t=1s)
 2. [Video from Olena Dovbenchuk](https://www.youtube.com/watch?v=TkA_asXaBEE&feature=youtu.be)
-3. [Video from Alina Bodnar]()
+3. [Video from Alina Bodnar](youtube.com/watch?v=0psD0UzPHMM&feature=youtu.be)
 
 ### Contributors
 - [Oksana Moskviak](https://github.com/okqsna)
