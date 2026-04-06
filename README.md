@@ -39,6 +39,10 @@ word-embeddings-la/
 │   └── main_process.ipynb
 └── requirements.txt      # Python dependencies
 ```
+### Videos with explanation
+1. [Video from Oksana Moskviak](https://www.youtube.com/watch?v=wnyQZj9yCpY&t=1s)
+2. [Video from Olena Dovbenchuk](https://www.youtube.com/watch?v=TkA_asXaBEE&feature=youtu.be)
+3. [Video from Alina Bodnar]()
 
 ### Contributors
 - [Oksana Moskviak](https://github.com/okqsna)
