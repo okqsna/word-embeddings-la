@@ -7,7 +7,21 @@
 ```
 git clone https://github.com/okqsna/word-embeddings-la.git
 ```
-2. Download Ukrainian and Engish embedding models from [FastText](https://fasttext.cc/docs/en/crawl-vectors.html)
+2. Download Ukrainian and English embedding models from [FastText](https://fasttext.cc/docs/en/crawl-vectors.html)
+- Create a folder `model` in the main directory and place the unarchived files with embedding models there.
+
+Or
+- Use tools from [FastText](https://fasttext.cc/docs/en/crawl-vectors.html) after downloading the requirements.
+```
+import fasttext
+import fasttext.util
+
+fasttext.util.download_model('en', if_exists='ignore')
+fasttext.util.download_model('uk', if_exists='ignore')
+
+ft_eng = fasttext.load_model('cc.en.300.bin')
+ft_uk = fasttext.load_model('cc.uk.300.bin')
+```
 
 ### Usage
 #### 1. Activate Python virtual environment
