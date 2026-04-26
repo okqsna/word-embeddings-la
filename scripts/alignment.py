@@ -4,6 +4,7 @@ Main calculations for the exploration data for the research
 of Ukrainian-English translation'
 """
 import numpy as np
+import similarity_metrics
 
 def normalize(v):
     """
@@ -47,7 +48,8 @@ def build_candidate_matrices(english_words: list[str], model_en):
 
 
 def translate_word(ua_word: str, w_transformation: np.ndarray, model_ua, candidate_words: list[str],
-    e_candidates: np.ndarray, top_k: int = 5) -> list[tuple[str, float]]:
+    e_candidates: np.ndarray, top_k: int = 5,
+    similarity_metric: str="cosine") -> list[tuple[str, float]]:
     """
     Function produces main prediction of the English translation of one Ukrainian word 
     by getting the Ukrainian word vector, mapping it into the English space
@@ -64,5 +66,13 @@ def translate_word(ua_word: str, w_transformation: np.ndarray, model_ua, candida
     """
     x = normalize(model_ua.get_word_vector(ua_word))
     x_new = normalize(w_transformation @ x)
-    scores = e_candidates @ x_new
+
+    if similarity_metric == "cosine":
+        scores = similarity_metrics.normalized_cosine_similarity(x_new, e_candidates)
+    elif similarity_metric == "euclidean":
+        scores = similarity_metrics.euclidean_distance(x_new, e_candidates)
+        return [(candidate_words[i], float(scores[i])) for i in np.argsort(scores)[:top_k]]
+    elif similarity_metric == "csls":
+        scores = similarity_metrics.csls_similarity(x_new, e_candidates)
+
     return [(candidate_words[i], float(scores[i])) for i in np.argsort(scores)[-top_k:][::-1]]
