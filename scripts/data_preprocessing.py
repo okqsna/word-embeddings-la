@@ -29,6 +29,24 @@ TRANSLIT_SYSTEMS = [
     UkrainianNational1996,
 ]
 
+MIN_WORD_LENGTH = 3
+
+MAX_TRANSLATIONS = 3
+
+UA_STOPWORDS = {
+    "і", "й", "та", "в", "у", "на", "з", "із", "до", "від",
+    "для", "про", "або", "але", "так", "це", "той", "який",
+    "яка", "яке", "вони", "він", "вона", "воно", "ми", "ви",
+    "не", "що", "як", "коли", "де", "тут", "там"
+}
+
+EN_STOPWORDS = {
+    "a", "an", "the", "and", "or", "but", "in", "on", "at",
+    "to", "from", "for", "of", "about", "with", "by", "this",
+    "that", "which", "who", "he", "she", "it", "they", "we",
+    "you", "is", "are", "was", "were", "be", "been", "not"
+}
+
 def clean_word(word: str)->str:
     """
     Function cleans the word, if it starts from some wrong punctuation
@@ -55,16 +73,44 @@ def check_word_language(word: str, language: str)->bool:
             return bool(re.fullmatch(r"[a-z]+(?:[-'][a-z]+)*", word))
     return False
 
-def convert_transliteracy(word: str) -> list:
+def convert_transliteracy(word: str) -> set[str]:
     """
     Function finds all transliteracy variant of the Ukrainian word.
 
     :param word: str, word to transliterate
     :return: list, transliteration results
     """
-    return set(translit(word, system) for system in TRANSLIT_SYSTEMS)
+    return set(translit(word, system).lower() for system in TRANSLIT_SYSTEMS)
 
-def clean_transliteracy(dictionary: dict, ua_word: str, transliterations: list)-> dict:
+
+def is_probable_transliteration(english_word: str, transliterations: set[str]) -> bool:
+    """
+    Function checks whether an English word is probably only a transliteration
+    of a Ukrainian word. Helps catch cases where transliteration systems produce slightly
+    different spellings.
+
+    :param english_word: English word from the dictionary
+    :param transliterations: possible transliteration variants of the Ukrainian word
+    :return: True if the English word looks like transliteration, otherwise False
+    """
+    english_word = english_word.lower()
+
+    if english_word in transliterations:
+        return True
+
+    for variant in transliterations:
+        variant = variant.lower()
+
+        if english_word == variant:
+            return True
+
+        if len(english_word) >= 4 and len(variant) >= 4:
+            if english_word.startswith(variant[:4]) or variant.startswith(english_word[:4]):
+                return True
+
+    return False
+
+def clean_transliteracy(dictionary: dict, ua_word: str, transliterations: set[str]) -> dict:
     """
     Function removes transliterated variants of Ukrainian words from the dictionary.
 
@@ -77,13 +123,12 @@ def clean_transliteracy(dictionary: dict, ua_word: str, transliterations: list)-
     words_to_be_removed = []
 
     if len(all_words) == 1:
-        if all(all_words[0] == word for word in transliterations):
-            return dictionary
-        elif any(all_words[0] == word for word in transliterations):
+        if is_probable_transliteration(all_words[0], transliterations):
             dictionary.pop(ua_word)
+
     elif len(all_words) > 1:
         for word in all_words:
-            if word in transliterations:
+            if is_probable_transliteration(word, transliterations):
                 words_to_be_removed.append(word)
 
         for word in words_to_be_removed:
@@ -138,6 +183,12 @@ def data_preprocessing(original_dictionary: str="../data/original/uk-en-train.tx
         ukrainian_word = clean_word(ukrainian_word)
         english_word = clean_word(english_word)
 
+        if len(ukrainian_word) < MIN_WORD_LENGTH or len(english_word) < MIN_WORD_LENGTH:
+            continue
+
+        if ukrainian_word in UA_STOPWORDS or english_word in EN_STOPWORDS:
+            continue
+
         if check_word_language(ukrainian_word, "ua") and check_word_language(english_word, "en"):
             result_dictionary.setdefault(ukrainian_word, [])
             if english_word not in result_dictionary[ukrainian_word]:
@@ -145,8 +196,14 @@ def data_preprocessing(original_dictionary: str="../data/original/uk-en-train.tx
 
     for ukrainian_word in list(result_dictionary.keys()):
         transliterated_ukrainian_word = convert_transliteracy(ukrainian_word)
-        result_dictionary = clean_transliteracy(result_dictionary, ukrainian_word, 
-                                                transliterated_ukrainian_word)
+        result_dictionary = clean_transliteracy(result_dictionary, ukrainian_word,
+                                                 transliterated_ukrainian_word)
+
+    result_dictionary = {
+        ua: eng_words
+        for ua, eng_words in result_dictionary.items()
+        if len(eng_words) <= MAX_TRANSLATIONS
+    }
 
     write_res_csv(result_dictionary, cleaned_dictionary)
     return result_dictionary
