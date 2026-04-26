@@ -29,23 +29,21 @@ TRANSLIT_SYSTEMS = [
     UkrainianNational1996,
 ]
 
-MIN_WORD_LENGTH = 3
+MIN_WORD_LENGTH, MAX_TRANSLATIONS = 3, 3
 
-MAX_TRANSLATIONS = 3
+def read_stop_words(filename: str):
+    """
+    Function reads stopwords from the file
+    """
+    words = set()
+    with open(filename, "r", encoding="utf-8") as f:
+        for word in f:
+            word = word.strip("\n")
+            words.add(word)
+    return words
 
-UA_STOPWORDS = {
-    "і", "й", "та", "в", "у", "на", "з", "із", "до", "від",
-    "для", "про", "або", "але", "так", "це", "той", "який",
-    "яка", "яке", "вони", "він", "вона", "воно", "ми", "ви",
-    "не", "що", "як", "коли", "де", "тут", "там"
-}
-
-EN_STOPWORDS = {
-    "a", "an", "the", "and", "or", "but", "in", "on", "at",
-    "to", "from", "for", "of", "about", "with", "by", "this",
-    "that", "which", "who", "he", "she", "it", "they", "we",
-    "you", "is", "are", "was", "were", "be", "been", "not"
-}
+UA_STOPWORDS = read_stop_words("../data/stopwords/stopwords_ua.txt")
+ENG_STOPWORDS = read_stop_words("../data/stopwords/stopwords_eng.txt")
 
 def clean_word(word: str)->str:
     """
@@ -186,7 +184,7 @@ def data_preprocessing(original_dictionary: str="../data/original/uk-en-train.tx
         if len(ukrainian_word) < MIN_WORD_LENGTH or len(english_word) < MIN_WORD_LENGTH:
             continue
 
-        if ukrainian_word in UA_STOPWORDS or english_word in EN_STOPWORDS:
+        if ukrainian_word in UA_STOPWORDS or english_word in ENG_STOPWORDS:
             continue
 
         if check_word_language(ukrainian_word, "ua") and check_word_language(english_word, "en"):
@@ -209,3 +207,4 @@ def data_preprocessing(original_dictionary: str="../data/original/uk-en-train.tx
     return result_dictionary
 
 data_preprocessing()
+data_preprocessing("../data/original/uk-en-full.txt", "../data/usage/uk-en-full.csv")
