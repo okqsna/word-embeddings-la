@@ -66,3 +66,33 @@ def translate_word(ua_word: str, w_transformation: np.ndarray, model_ua, candida
     x_new = normalize(w_transformation @ x)
     scores = e_candidates @ x_new
     return [(candidate_words[i], float(scores[i])) for i in np.argsort(scores)[-top_k:][::-1]]
+
+def evaluate(test_dict, w_transformation, model_uk, candidate_words, e_candidates, top_k=1):
+    """
+    Evaluate translation quality when one Ukrainian word may have several correct English translations.
+
+    :param test_dict: dict[str, list[str]], Ukrainian word mapped to all correct English translations.
+    :param w_transformation: numpy.ndarray, transformation matrix.
+    :param model_uk: loaded Ukrainian fastText model.
+    :param candidate_words: list[str], English candidate words.
+    :param e_candidates: numpy.ndarray, matrix of normalized English candidate vectors.
+    :param top_k: int, number of best predictions.
+    :return: accuracy and detailed results.
+    """
+    correct = 0
+    results = []
+    for ua_word, true_translations in test_dict.items():
+        prediction = translate_word(ua_word, w_transformation, model_uk, candidate_words, e_candidates, top_k)
+        predicted_words = [word for word, _ in prediction]
+        hit = any(true_en in predicted_words for true_en in true_translations)
+        if hit:
+            correct += 1
+        results.append({
+            "ukrainian": ua_word,
+            "true_english_options": true_translations,
+            "predictions": predicted_words,
+            "correct": hit
+        })
+
+    accuracy = correct / len(test_dict) if test_dict else 0.0
+    return accuracy, results
