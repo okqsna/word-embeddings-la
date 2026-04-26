@@ -49,6 +49,8 @@ word-embeddings-la/
 ├── model/                # FastText embedding models
 ├── scripts/              # Python scripts for experiments
 │   ├── alignment.py
+│   ├── other_approaches.py
+│   ├── similarity_metrics.py
 │   ├── data_preprocessing.py
 │   └── main_process.ipynb
 └── requirements.txt      # Python dependencies
