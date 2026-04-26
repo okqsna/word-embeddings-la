@@ -206,5 +206,5 @@ def data_preprocessing(original_dictionary: str="../data/original/uk-en-train.tx
     write_res_csv(result_dictionary, cleaned_dictionary)
     return result_dictionary
 
+
 data_preprocessing()
-data_preprocessing("../data/original/uk-en-full.txt", "../data/usage/uk-en-full.csv")
