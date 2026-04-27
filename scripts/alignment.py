@@ -69,9 +69,6 @@ def translate_word(ua_word: str, w_transformation: np.ndarray, model_ua, candida
 
     if similarity_metric == "cosine":
         scores = similarity_metrics.normalized_cosine_similarity(x_new, e_candidates)
-    elif similarity_metric == "euclidean":
-        scores = similarity_metrics.euclidean_distance(x_new, e_candidates)
-        return [(candidate_words[i], float(scores[i])) for i in np.argsort(scores)[:top_k]]
     elif similarity_metric == "csls":
         if r_y is not None:
             scores = similarity_metrics.csls_similarity(x_new, e_candidates, r_y)
